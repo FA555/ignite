@@ -1,5 +1,4 @@
 #let config-dir = "config"
-// #let data-dir = "data"
 #let data-dir = sys.inputs.at("data-dir", default: "data")
 
 #let serif-fonts = read(config-dir + "/serif-fonts.txt").split("\n")
@@ -61,11 +60,10 @@
       let (body, page-no, _) = entry
       
       grid(
-        columns: (auto, 1fr, auto),
-        column-gutter: .5em,
+        columns: (1fr, auto),
+        // column-gutter: .5em,
         align: (left + top, right + bottom),
-        body,
-        repeat(text(fill: gray)[.]),
+        body + box(width: 1fr, pad(x: .5em, repeat(text(fill: gray)[.]))),
         text(page-no),
       )
     }
@@ -89,14 +87,12 @@
       if is-heading != "None" {
         heading(bookmarked: false, numbering: none, body)
       } else {
-        grid(
-          columns: (auto, 1fr, auto),
-          column-gutter: .5em,
-          align: (left + top, right + bottom),
-          body,
-          repeat(text(fill: gray)[.]),
-          text(page-no),
-        )
+      grid(
+        columns: (1fr, auto),
+        align: (left + top, right + bottom),
+        body + box(width: 1fr, pad(x: .5em, repeat(text(fill: gray)[.]))),
+        text(page-no),
+      )
       }
     }
   },
