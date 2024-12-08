@@ -8,6 +8,9 @@ from typing import Optional
 import pypinyin
 
 
+DATA_DIR = 'data'
+
+
 @dataclass
 class Entry:
     content: str
@@ -20,29 +23,27 @@ def read_entries(file_name):
     entries = []
 
     with open(file_name, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
+        for line in f.readlines():
+            line = line.strip()
+            if not line:
+                continue
 
-    for line in lines:
-        line = line.strip()
-        if not line:
-            continue
+            content = None
+            page_no = None
+            alphabetic = None
+            heading = None
 
-        content = None
-        page_no = None
-        alphabetic = None
-        heading = None
+            if line[0] == '<' and line[-1] == '>':
+                heading = True
+                content = line[1:-1]
+            else:
+                line = line.split()
+                content = ' '.join(line[:-1])
+                page_no = int(line[-1])
+                alphabetic = ''.join(pypinyin.slug(
+                    content, separator='', style=pypinyin.Style.FIRST_LETTER).split()).upper()
 
-        if line[0] == '<' and line[-1] == '>':
-            heading = True
-            content = line[1:-1]
-        else:
-            line = line.split()
-            content = ' '.join(line[:-1])
-            page_no = int(line[-1])
-            alphabetic = ''.join(pypinyin.slug(
-                content, separator='', style=pypinyin.Style.FIRST_LETTER).split()).upper()
-
-        entries.append(Entry(content, page_no, alphabetic, heading))
+            entries.append(Entry(content, page_no, alphabetic, heading))
 
     return entries
 
@@ -57,7 +58,6 @@ def write_unsorted(entries, file_name):
             f.write(f'{entry.content} {entry.page_no} {entry.heading}\n')
 
 def preprocess_data():
-    DATA_DIR = 'example'
     entries = read_entries(DATA_DIR + '/index.txt')
     write_alphabetic(entries, DATA_DIR + '/index_alphabetic.txt')
     write_unsorted(entries, DATA_DIR + '/index_unsorted.txt')
